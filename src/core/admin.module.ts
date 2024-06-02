@@ -4,6 +4,10 @@ import { AdminService } from './admin.service';
 import { AdminAppConfigurationOptions } from './admin.config';
 import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 import { ADMIN_CONFIG, ADMIN_DATASOURCE, ADMIN_SERVICE } from './constants';
+import { getStaticControllers, getStaticProviders } from './admin.util';
+import { JwtModule } from '@nestjs/jwt';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { MailerConfigClass } from 'src/mail/mailerConfig.service';
 
 export interface AdminCoreModuleConfig {
   adminService?: typeof AdminService;
@@ -48,8 +52,21 @@ export class AdminModule {
 
     return {
       module: AdminModule,
-      controllers: [config.adminController],
-      providers,
+      imports: [
+        MailerModule.forRootAsync({
+          useClass: MailerConfigClass,
+        }),
+        JwtModule.registerAsync({
+          useFactory: async () => ({
+            secret: process.env.AUTH_JWT_SECRET,
+            signOptions: {
+              expiresIn: process.env.AUTH_JWT_TOKEN_EXPIRES_IN || '1d',
+            },
+          }),
+        }),
+      ],
+      controllers: [config.adminController, ...getStaticControllers()],
+      providers: [...providers, ...getStaticProviders()],
       exports: providers,
     };
   }
