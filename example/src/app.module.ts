@@ -12,7 +12,7 @@ import dataSource from 'ormconfig';
       useClass: TypeORMConfigFactory,
     }),
     AdminModule.register({
-      dataSource,
+      dataSource: dataSource as any,
     }),
   ],
   controllers: [AppController],
