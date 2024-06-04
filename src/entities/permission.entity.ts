@@ -29,7 +29,7 @@ export class Permission extends BaseEntity {
   groupId: string;
 
   @ApiProperty()
-  @ManyToOne(() => Group, (group) => group.permissions)
+  @ManyToOne(() => Group, (group) => group.permissions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'groupId' })
   group: Group;
 }

@@ -18,6 +18,10 @@ export enum AuthProvider {
   GOOGLE = 'GOOGLE',
   EMAIL = 'EMAIL',
 }
+export enum RoleEnum {
+  ADMIN = 'ADMIN',
+  USER = 'USER',
+}
 
 @Entity({
   name: 'users',
@@ -49,6 +53,10 @@ export class User extends BaseEntity {
   @ApiProperty()
   @Column({ type: 'timestamp with time zone', nullable: true })
   emailVerifiedAt: Date;
+
+  @ApiProperty()
+  @Column({ type: 'enum', default: RoleEnum.USER, enum: RoleEnum })
+  role: RoleEnum;
 
   @ApiHideProperty()
   previousPassword: string;

@@ -33,6 +33,12 @@ export class EmailService {
   }
 
   async register(registerDto: RegisterDto) {
+    const existingUser = await this.userService.userRepository.findOneBy({
+      email: registerDto.email,
+    });
+    if (existingUser) {
+      throw new UnprocessableEntityException({ emaiL: 'Already exists.' });
+    }
     const user = await this.userService.create(registerDto);
     const token = await this.tokenService.create(user, 'REGISTER_VERIFY');
     await this.authService.userRegisterEmail({

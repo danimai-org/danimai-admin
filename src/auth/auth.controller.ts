@@ -12,7 +12,7 @@ import { Session } from 'src/entities/session.entity';
 import { SessionService } from '../session/session.service';
 import { SessionParam } from 'src/decorators/session.decorator';
 
-@ApiTags('Auth (Danimai Admin)')
+@ApiTags('Auth')
 @ApiBearerAuth()
 @Controller({
   path: 'auth',
@@ -29,7 +29,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Refresh your access token.' })
   @HttpCode(HttpStatus.OK)
   async refreshToken(@SessionParam() { id }: Session) {
-    return this.authService.createAccessToken(id);
+    return { accessToken: await this.authService.createAccessToken(id) };
   }
 
   @UseGuards(AuthGuard('jwt'))

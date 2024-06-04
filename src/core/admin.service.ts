@@ -1,14 +1,34 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { paginate, PaginateConfig, PaginateQuery } from 'nestjs-paginate';
 import { EntityType } from 'src/types';
 import { DataSource, FindOneOptions, FindOptionsRelations } from 'typeorm';
 import { ADMIN_DATASOURCE } from './constants';
+import {
+  createPaginateConfig,
+  createValidationSchema,
+  parseValidation,
+} from './service.helper';
+import { ZodObject } from 'zod';
 
-interface AdminSection<T = EntityType> {
+interface AdminSectionConfig<T = EntityType> {
+  paginatedConfig?: PaginateConfig<T>;
+  entity: T;
+  relations?: FindOptionsRelations<T>;
+  getOneFindOptions?: FindOneOptions;
+}
+
+export interface AdminSection<T = EntityType> {
   paginatedConfig: PaginateConfig<T>;
   entity: T;
   relations?: FindOptionsRelations<T>;
-  getOneFindOptions: FindOneOptions;
+  getOneFindOptions?: FindOneOptions;
+  createValidationSchema: ZodObject<any>;
+  updateValidationSchema: ZodObject<any>;
 }
 
 @Injectable()
@@ -29,8 +49,20 @@ export class AdminService {
     );
   }
 
-  registerSection(name: string, section: AdminSection) {
+  registerSection(name: string, _section: AdminSectionConfig) {
+    const section = this.setupSection(_section);
     this.sections.set(name, section);
+  }
+
+  setupSection(section: AdminSectionConfig): AdminSection {
+    const columns = this.dataSource.getMetadata(section.entity).columns;
+
+    return {
+      ...section,
+      paginatedConfig: section.paginatedConfig || createPaginateConfig(columns),
+      createValidationSchema: createValidationSchema(columns),
+      updateValidationSchema: createValidationSchema(columns, true),
+    };
   }
 
   getSection(name: string, entity: string) {
@@ -47,8 +79,8 @@ export class AdminService {
   async getAll(sectionName: string, entityName: string, query: PaginateQuery) {
     const section = this.getSection(sectionName, entityName);
     const repository = this.getRepository(sectionName);
-
-    return paginate(query, repository, section.paginatedConfig);
+    const queryBuilder = repository.createQueryBuilder();
+    return paginate(query, queryBuilder, section.paginatedConfig);
   }
 
   async getOne(sectionName: string, entityName: string, id: string) {
@@ -69,6 +101,14 @@ export class AdminService {
     createDto: Record<string, any>,
   ) {
     const repository = this.getRepository(sectionName);
+    const section = this.getSection(sectionName, entityName);
+
+    // validate data
+    const error = parseValidation(createDto, section.createValidationSchema);
+    if (error) {
+      throw new UnprocessableEntityException(error.issues);
+    }
+
     return repository.save(createDto);
   }
 
@@ -79,12 +119,21 @@ export class AdminService {
     updateDto: Record<string, any>,
   ) {
     const repository = this.getRepository(sectionName);
+    const section = this.getSection(sectionName, entityName);
+
+    // validate data
+    const error = parseValidation(updateDto, section.updateValidationSchema);
+
+    if (error) {
+      throw new UnprocessableEntityException(error.issues);
+    }
 
     const entity = await repository.findOneBy({ id });
 
     if (!entity) {
       throw new NotFoundException(`${entityName} not found.`);
     }
+
     await repository.update({ id }, updateDto);
 
     return { ...entity, updateDto };

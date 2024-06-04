@@ -3,7 +3,6 @@ import { DataSource, Repository } from 'typeorm';
 import { User } from 'src/entities/user.entity';
 import { RegisterDto } from '../auth-email/email.dto';
 import { UserUpdateDto } from './user-update.dto';
-import { plainToInstance } from 'class-transformer';
 import { ADMIN_DATASOURCE } from 'src/core';
 
 @Injectable()
@@ -28,9 +27,9 @@ export class UserService {
   async update(user: User, updateDto: UserUpdateDto) {
     await this.userRepository.update(user.id, updateDto);
 
-    return plainToInstance(User, {
+    return {
       ...user,
       ...updateDto,
-    });
+    };
   }
 }

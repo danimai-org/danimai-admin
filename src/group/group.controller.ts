@@ -1,0 +1,47 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import { GroupService } from './group.service';
+import { ApiTags } from '@nestjs/swagger';
+import { CreateGroupDto } from './dto/create-group.dto';
+import { UpdateGroupDto } from './dto/update-group.dto';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { Auth } from 'src/decorators/auth.decorator';
+
+@ApiTags('Group')
+@Auth()
+@Controller('groups')
+export class GroupController {
+  constructor(private service: GroupService) {}
+
+  @Get()
+  getAll(@Paginate() query: PaginateQuery) {
+    return this.service.getAll(query);
+  }
+
+  @Get(':id')
+  getOne(@Param('id') id: string) {
+    return this.service.getOne(id);
+  }
+
+  @Post()
+  create(@Body() createDto: CreateGroupDto) {
+    return this.service.create(createDto);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateDto: UpdateGroupDto) {
+    return this.service.update(id, updateDto);
+  }
+
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.service.delete(id);
+  }
+}

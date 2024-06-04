@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseFilters,
+} from '@nestjs/common';
 import {
   ApiAcceptedResponse,
   ApiBadRequestResponse,
@@ -17,12 +24,14 @@ import {
   SendVerifyMailDto,
 } from './email.dto';
 import { EmailService } from './email.service';
+import { GlobalExceptionFilter } from 'src/filters/global.filter';
 
 @ApiTags('Auth Email')
 @Controller({
   path: 'auth/email',
   version: '1',
 })
+@UseFilters(GlobalExceptionFilter)
 export class EmailController {
   constructor(private emailService: EmailService) {}
 

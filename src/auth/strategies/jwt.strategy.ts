@@ -3,9 +3,11 @@ import {
   Injectable,
   UnauthorizedException,
   ForbiddenException,
+  UseFilters,
 } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { SessionService } from '../../session/session.service';
+import { GlobalExceptionFilter } from 'src/filters/global.filter';
 
 export type JwtPayload = {
   id: string;
@@ -13,13 +15,13 @@ export type JwtPayload = {
   iat: number;
   exp: number;
 };
-
+@UseFilters(GlobalExceptionFilter)
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(private sessionService: SessionService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.ADMIN_JWT_SECRET,
+      secretOrKey: process.env.AUTH_JWT_SECRET,
       ignoreExpiration: false,
     });
   }

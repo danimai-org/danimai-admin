@@ -11,3 +11,4 @@ export * from './user.entity';
 export * from './permission.entity';
 export * from './token.entity';
 export * from './session.entity';
+export * from './base';

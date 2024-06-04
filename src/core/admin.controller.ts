@@ -7,12 +7,19 @@ import {
   Param,
   Patch,
   Post,
+  UseFilters,
 } from '@nestjs/common';
 import { ADMIN_SERVICE } from './constants';
 import { AdminService } from './admin.service';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { GlobalExceptionFilter } from 'src/filters/global.filter';
+import { Auth } from 'src/decorators/auth.decorator';
 
 @Controller('admin')
+@ApiTags('Admin Site')
+@Auth()
+@UseFilters(GlobalExceptionFilter)
 export class AdminController {
   constructor(
     @Inject(ADMIN_SERVICE)
@@ -38,6 +45,7 @@ export class AdminController {
   }
 
   @Post(':section/:entity')
+  @ApiBody({})
   create(
     @Param('section') section: string,
     @Param('entity') entity: string,
@@ -47,6 +55,7 @@ export class AdminController {
   }
 
   @Patch(':section/:entity/:id')
+  @ApiBody({})
   update(
     @Param('section') section: string,
     @Param('entity') entity: string,

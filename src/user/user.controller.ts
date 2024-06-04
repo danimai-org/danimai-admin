@@ -1,30 +1,17 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  Patch,
-  UseGuards,
-} from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, Get, HttpStatus, Patch } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { AuthGuard } from '@nestjs/passport';
 import { UserParam } from 'src/decorators/user.decorator';
 import { User } from 'src/entities/user.entity';
 import { UserUpdateDto } from './user-update.dto';
+import { Auth } from 'src/decorators/auth.decorator';
 
-@ApiTags('User (Danimai Admin)')
-@ApiBearerAuth()
+@ApiTags('User')
 @Controller({
   path: 'users',
   version: '1',
 })
-@UseGuards(AuthGuard('jwt'))
+@Auth()
 export class UserController {
   constructor(private userService: UserService) {}
 

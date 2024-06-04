@@ -14,12 +14,12 @@ export abstract class BaseEntity extends _BaseEntity {
 
   @ApiProperty()
   @CreateDateColumn()
-  created_at: Date;
+  createdAt: Date;
 
   @ApiProperty()
   @UpdateDateColumn()
-  updated_at: Date;
+  updatedAt: Date;
 
   @DeleteDateColumn()
-  deleted_at: Date;
+  deletedAt: Date;
 }
