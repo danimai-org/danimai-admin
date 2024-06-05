@@ -3,11 +3,12 @@ import { BaseEntity } from './base';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from './user.entity';
 import { Permission } from './permission.entity';
+import { GroupAbstract } from 'src/abstracts';
 
 @Entity({
   name: 'groups',
 })
-export class Group extends BaseEntity {
+export class Group extends BaseEntity implements GroupAbstract {
   @ApiProperty()
   @Column()
   name: string;

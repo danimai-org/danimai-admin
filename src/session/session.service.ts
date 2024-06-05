@@ -7,7 +7,7 @@ import {
 import { DataSource, Repository } from 'typeorm';
 import { Session } from 'src/entities/session.entity';
 import { User } from 'src/entities/user.entity';
-import { ADMIN_DATASOURCE } from 'src/core';
+import { ADMIN_DATASOURCE, APP_ENTITIES, AppEntities } from 'src/core';
 
 @Injectable()
 export class SessionService {
@@ -15,8 +15,10 @@ export class SessionService {
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))
     dataSource: DataSource,
+    @Inject(forwardRef(() => APP_ENTITIES))
+    { session }: AppEntities,
   ) {
-    this.sessionRepository = dataSource.getRepository(Session);
+    this.sessionRepository = dataSource.getRepository(session);
   }
 
   create(user: User) {

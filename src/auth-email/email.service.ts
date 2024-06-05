@@ -14,10 +14,10 @@ import {
 } from './email.dto';
 import { UserService } from '../user/user.service';
 import { TokenService } from '../token/token.service';
-import { AuthProvider, User } from 'src/entities/user.entity';
+import { User } from 'src/entities/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { AuthService } from '../auth/auth.service';
-import { ADMIN_DATASOURCE } from 'src/core';
+import { ADMIN_DATASOURCE, APP_ENTITIES, AppEntities } from 'src/core';
 
 @Injectable()
 export class EmailService {
@@ -28,8 +28,10 @@ export class EmailService {
     private tokenService: TokenService,
     @Inject(forwardRef(() => ADMIN_DATASOURCE))
     dataSource: DataSource,
+    @Inject(forwardRef(() => APP_ENTITIES))
+    { user }: AppEntities,
   ) {
-    this.userRepository = dataSource.getRepository(User);
+    this.userRepository = dataSource.getRepository(user);
   }
 
   async register(registerDto: RegisterDto) {
@@ -73,11 +75,6 @@ export class EmailService {
       throw new UnprocessableEntityException({ email: 'User not found' });
     }
 
-    if (user.provider !== AuthProvider.EMAIL) {
-      throw new UnprocessableEntityException({
-        email: `User is registered with ${user.provider}`,
-      });
-    }
     if (!user.isActive) {
       throw new UnprocessableEntityException({ email: 'User not active' });
     }

@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { User } from 'src/entities/user.entity';
 import { Token, TokenType } from 'src/entities/token.entity';
 import { DataSource, Repository } from 'typeorm';
-import { ADMIN_DATASOURCE } from 'src/core';
+import { ADMIN_DATASOURCE, APP_ENTITIES, AppEntities } from 'src/core';
 
 @Injectable()
 export class TokenService {
@@ -11,8 +11,10 @@ export class TokenService {
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))
     dataSource: DataSource,
+    @Inject(forwardRef(() => APP_ENTITIES))
+    { token }: AppEntities,
   ) {
-    this.tokenRepository = dataSource.getRepository(Token);
+    this.tokenRepository = dataSource.getRepository(token);
   }
 
   async create(

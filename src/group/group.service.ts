@@ -5,7 +5,7 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { ADMIN_DATASOURCE } from 'src/core';
+import { ADMIN_DATASOURCE, APP_ENTITIES, AppEntities } from 'src/core';
 import { Group, RoleEnum, User } from 'src/entities';
 import { DataSource, In, Not, Repository } from 'typeorm';
 import { CreateGroupDto } from './dto/create-group.dto';
@@ -22,9 +22,11 @@ export class GroupService {
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))
     dataSource: DataSource,
+    @Inject(forwardRef(() => APP_ENTITIES))
+    { group, user }: AppEntities,
   ) {
-    this.groupRepository = dataSource.getRepository(Group);
-    this.userRepository = dataSource.getRepository(User);
+    this.groupRepository = dataSource.getRepository(group);
+    this.userRepository = dataSource.getRepository(user);
   }
 
   async getAll(query: PaginateQuery) {

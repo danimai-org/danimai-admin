@@ -2,6 +2,7 @@ import { randomStringGenerator } from '@nestjs/common/utils/random-string-genera
 import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
 import { BaseEntity } from './base';
+import { TokenAbstract } from 'src/abstracts';
 
 export enum TokenType {
   REGISTER_VERIFY = 'REGISTER_VERIFY',
@@ -10,7 +11,7 @@ export enum TokenType {
 }
 
 @Entity({ name: 'tokens' })
-export class Token extends BaseEntity {
+export class Token extends BaseEntity implements TokenAbstract {
   @Column({ type: 'varchar', length: 100 })
   token: string;
 

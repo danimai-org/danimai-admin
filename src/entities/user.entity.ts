@@ -13,11 +13,8 @@ import { Token } from './token.entity';
 import { Session } from './session.entity';
 import { BaseEntity } from './base';
 import * as bcrypt from 'bcryptjs';
+import { UserAbstract } from 'src/abstracts';
 
-export enum AuthProvider {
-  GOOGLE = 'GOOGLE',
-  EMAIL = 'EMAIL',
-}
 export enum RoleEnum {
   ADMIN = 'ADMIN',
   USER = 'USER',
@@ -26,7 +23,7 @@ export enum RoleEnum {
 @Entity({
   name: 'users',
 })
-export class User extends BaseEntity {
+export class User extends BaseEntity implements UserAbstract {
   @ApiProperty({ example: 'Danimai' })
   @Column({ type: 'varchar', length: 200 })
   name: string;
@@ -41,10 +38,6 @@ export class User extends BaseEntity {
 
   @Column({ type: 'boolean', default: false })
   isActive: boolean;
-
-  @ApiProperty()
-  @Column({ default: AuthProvider.EMAIL, enum: AuthProvider })
-  provider: AuthProvider;
 
   @ApiProperty()
   @Column({ type: 'uuid', nullable: true })

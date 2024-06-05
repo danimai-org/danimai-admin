@@ -4,7 +4,13 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { ADMIN_DATASOURCE, ADMIN_SERVICE, AdminService } from 'src/core';
+import {
+  ADMIN_DATASOURCE,
+  ADMIN_SERVICE,
+  AdminService,
+  APP_ENTITIES,
+  AppEntities,
+} from 'src/core';
 import { Permission } from 'src/entities';
 import { DataSource, Repository } from 'typeorm';
 import { CreatePermissionDto } from './dto/create-permission.dto';
@@ -17,12 +23,15 @@ export class PermissionService {
   permissionRepository: Repository<Permission>;
 
   constructor(
-    @Inject(forwardRef(() => ADMIN_DATASOURCE)) dataSource: DataSource,
+    @Inject(forwardRef(() => ADMIN_DATASOURCE))
+    dataSource: DataSource,
     @Inject(forwardRef(() => ADMIN_SERVICE))
     private adminService: AdminService,
     private groupService: GroupService,
+    @Inject(forwardRef(() => APP_ENTITIES))
+    { permission }: AppEntities,
   ) {
-    this.permissionRepository = dataSource.getRepository(Permission);
+    this.permissionRepository = dataSource.getRepository(permission);
   }
 
   async getByGroup(groupId: string) {
