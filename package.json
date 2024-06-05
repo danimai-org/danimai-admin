@@ -17,7 +17,7 @@
     "build": "rimraf dist && tsc && tsc-alias",
     "postbuild": "copyfiles --error --up 1 src/mail/templates/*.* dist/src/",
     "prepublish": "yarn publish:local",
-    "publish:local": "yarn build && yarn unlink && yarn link && cd ./example && yarn link danimai-admin",
+    "publish:local": "yarn build &&  yarn link && cd ./example && yarn link danimai-admin",
     "dev": "nodemon --watch 'src/' --ignore 'example/' --exec 'yarn publish:local' -e ts"
   },
   "dependencies": {

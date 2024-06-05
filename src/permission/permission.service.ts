@@ -5,24 +5,24 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { ADMIN_DATASOURCE, ADMIN_SERVICE, AdminService } from 'src/core';
-import { Group, Permission } from 'src/entities';
+import { Permission } from 'src/entities';
 import { DataSource, Repository } from 'typeorm';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { CreateBulkPermissionDto } from './dto/create-bulk-permission.dto';
 import { RemoveBulkPermissionDto } from './dto/remove-bulk-permission.dto';
+import { GroupService } from 'src/group/group.service';
 
 @Injectable()
 export class PermissionService {
   permissionRepository: Repository<Permission>;
-  groupRepository: Repository<Group>;
 
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE)) dataSource: DataSource,
     @Inject(forwardRef(() => ADMIN_SERVICE))
     private adminService: AdminService,
+    private groupService: GroupService,
   ) {
     this.permissionRepository = dataSource.getRepository(Permission);
-    this.groupRepository = dataSource.getRepository(Group);
   }
 
   async getByGroup(groupId: string) {
@@ -34,13 +34,11 @@ export class PermissionService {
   }
 
   async create(permissionDto: CreatePermissionDto) {
-    const group = await this.groupRepository.findOneBy({
-      id: permissionDto.groupId,
-    });
-
-    if (!group) {
+    try {
+      await this.groupService.getOne(permissionDto.groupId);
+    } catch {
       throw new UnprocessableEntityException({
-        groupId: 'group does not exists.',
+        groupId: 'Group does not exists.',
       });
     }
 
@@ -62,13 +60,11 @@ export class PermissionService {
   }
 
   async createBulk(bulkPermissionDto: CreateBulkPermissionDto) {
-    const group = await this.groupRepository.findOneBy({
-      id: bulkPermissionDto.groupId,
-    });
-
-    if (!group) {
+    try {
+      await this.groupService.getOne(bulkPermissionDto.groupId);
+    } catch {
       throw new UnprocessableEntityException({
-        groupId: 'group does not exists.',
+        groupId: 'Group does not exists.',
       });
     }
 

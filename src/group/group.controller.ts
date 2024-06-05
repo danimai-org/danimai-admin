@@ -15,6 +15,7 @@ import { ApiPaginationQuery, Paginate, PaginateQuery } from 'nestjs-paginate';
 import { Auth } from 'src/decorators/auth.decorator';
 import { RoleEnum } from 'src/entities';
 import { groupPaginateConfig } from './group.pagination';
+import { AddUsersDto } from './dto/add-users.dto';
 
 @ApiTags('Group')
 @Auth(RoleEnum.ADMIN)
@@ -46,5 +47,15 @@ export class GroupController {
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.service.delete(id);
+  }
+
+  @Post('add-users')
+  addUser(@Body() addUsersDto: AddUsersDto) {
+    return this.service.addUsers(addUsersDto);
+  }
+
+  @Delete('remove-users')
+  removeUser(@Body() addUsersDto: AddUsersDto) {
+    return this.service.removeUsers(addUsersDto);
   }
 }

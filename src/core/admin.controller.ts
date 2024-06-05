@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  forwardRef,
   Get,
   Inject,
   Param,
@@ -14,15 +15,15 @@ import { AdminService } from './admin.service';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { GlobalExceptionFilter } from 'src/filters/global.filter';
-import { Auth } from 'src/decorators/auth.decorator';
+import { PermissionAuth } from 'src/decorators/auth.decorator';
 
 @Controller('admin')
 @ApiTags('Admin Site')
-@Auth()
+@PermissionAuth()
 @UseFilters(GlobalExceptionFilter)
 export class AdminController {
   constructor(
-    @Inject(ADMIN_SERVICE)
+    @Inject(forwardRef(() => ADMIN_SERVICE))
     private adminService: AdminService,
   ) {}
 

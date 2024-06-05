@@ -55,9 +55,10 @@ export class EmailService {
         verifyDto.verifyToken,
         'REGISTER_VERIFY',
       );
-      user.emailVerifiedAt = new Date();
-      user.isActive = true;
-      await user.save();
+      await this.userRepository.update(user.id, {
+        emailVerifiedAt: new Date(),
+        isActive: true,
+      });
     } catch (e) {
       throw new UnprocessableEntityException({ verify_token: e.message });
     }

@@ -3,24 +3,28 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { ADMIN_DATASOURCE } from 'src/core';
-import { Group } from 'src/entities';
-import { DataSource, Repository } from 'typeorm';
+import { Group, RoleEnum, User } from 'src/entities';
+import { DataSource, In, Not, Repository } from 'typeorm';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
 import { groupPaginateConfig } from './group.pagination';
 import { plainToInstance } from 'class-transformer';
+import { AddUsersDto } from './dto/add-users.dto';
 
 @Injectable()
 export class GroupService {
   groupRepository: Repository<Group>;
+  userRepository: Repository<User>;
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))
     dataSource: DataSource,
   ) {
     this.groupRepository = dataSource.getRepository(Group);
+    this.userRepository = dataSource.getRepository(User);
   }
 
   async getAll(query: PaginateQuery) {
@@ -73,5 +77,42 @@ export class GroupService {
     }
 
     await this.groupRepository.delete(id);
+  }
+
+  async addUsers(addUsersDto: AddUsersDto) {
+    try {
+      await this.getOne(addUsersDto.id);
+    } catch {
+      throw new UnprocessableEntityException({
+        id: 'Group does not exists.',
+      });
+    }
+    await this.userRepository.update(
+      {
+        id: In(addUsersDto.userIds),
+        role: Not(RoleEnum.ADMIN),
+      },
+      {
+        groupId: addUsersDto.id,
+      },
+    );
+  }
+
+  async removeUsers(addUsersDto: AddUsersDto) {
+    try {
+      await this.getOne(addUsersDto.id);
+    } catch {
+      throw new UnprocessableEntityException({
+        id: 'Group does not exists.',
+      });
+    }
+    await this.userRepository.update(
+      {
+        id: In(addUsersDto.userIds),
+      },
+      {
+        groupId: null,
+      },
+    );
   }
 }
