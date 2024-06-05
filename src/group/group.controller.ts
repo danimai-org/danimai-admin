@@ -11,16 +11,19 @@ import { GroupService } from './group.service';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
-import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { ApiPaginationQuery, Paginate, PaginateQuery } from 'nestjs-paginate';
 import { Auth } from 'src/decorators/auth.decorator';
+import { RoleEnum } from 'src/entities';
+import { groupPaginateConfig } from './group.pagination';
 
 @ApiTags('Group')
-@Auth()
+@Auth(RoleEnum.ADMIN)
 @Controller('groups')
 export class GroupController {
   constructor(private service: GroupService) {}
 
   @Get()
+  @ApiPaginationQuery(groupPaginateConfig)
   getAll(@Paginate() query: PaginateQuery) {
     return this.service.getAll(query);
   }

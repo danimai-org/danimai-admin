@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ADMIN_DATASOURCE } from 'src/core';
 import { Group } from 'src/entities';
 import { DataSource, Repository } from 'typeorm';
@@ -6,11 +11,15 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
 import { groupPaginateConfig } from './group.pagination';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class GroupService {
   groupRepository: Repository<Group>;
-  constructor(@Inject(ADMIN_DATASOURCE) dataSource: DataSource) {
+  constructor(
+    @Inject(forwardRef(() => ADMIN_DATASOURCE))
+    dataSource: DataSource,
+  ) {
     this.groupRepository = dataSource.getRepository(Group);
   }
 
@@ -47,7 +56,11 @@ export class GroupService {
       throw new NotFoundException('Group not found');
     }
 
-    return this.groupRepository.update({ id }, updateDto);
+    await this.groupRepository.update({ id }, updateDto);
+    return plainToInstance(Group, {
+      ...group,
+      ...updateDto,
+    });
   }
 
   async delete(id: string) {
