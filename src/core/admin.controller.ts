@@ -36,6 +36,21 @@ export class AdminController {
     return this.adminService.getAll(section, entity, query);
   }
 
+  @Get(':section/:entity/relation/:relationProperty')
+  getAllRelation(
+    @Param('section') section: string,
+    @Param('entity') entity: string,
+    @Param('relationProperty') relationProperty: string,
+    @Paginate() query: PaginateQuery,
+  ) {
+    return this.adminService.getAllRelation(
+      section,
+      entity,
+      relationProperty,
+      query,
+    );
+  }
+
   @Get(':section/:entity/:id')
   getOne(
     @Param('section') section: string,

@@ -11,7 +11,8 @@ import { ADMIN_DATASOURCE, APP_ENTITIES, AppEntities } from 'src/core';
 
 @Injectable()
 export class SessionService {
-  sessionRepository: Repository<Session>;
+  private sessionRepository: Repository<Session>;
+
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))
     dataSource: DataSource,

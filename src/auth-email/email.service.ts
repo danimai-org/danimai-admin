@@ -21,7 +21,8 @@ import { ADMIN_DATASOURCE, APP_ENTITIES, AppEntities } from 'src/core';
 
 @Injectable()
 export class EmailService {
-  userRepository: Repository<User>;
+  private userRepository: Repository<User>;
+
   constructor(
     private authService: AuthService,
     private userService: UserService,
@@ -35,7 +36,7 @@ export class EmailService {
   }
 
   async register(registerDto: RegisterDto) {
-    const existingUser = await this.userService.userRepository.findOneBy({
+    const existingUser = await this.userRepository.findOneBy({
       email: registerDto.email,
     });
     if (existingUser) {

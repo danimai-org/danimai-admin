@@ -20,7 +20,7 @@ import { GroupService } from 'src/group/group.service';
 
 @Injectable()
 export class PermissionService {
-  permissionRepository: Repository<Permission>;
+  private permissionRepository: Repository<Permission>;
 
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))

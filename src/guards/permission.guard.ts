@@ -8,11 +8,11 @@ import {
 import { Request } from 'express';
 import { ADMIN_DATASOURCE, APP_ENTITIES, AppEntities } from 'src/core';
 import { Permission, PermissionEnum, RoleEnum, User } from 'src/entities';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
-  permissionRepository: Repository<Permission>;
+  private permissionRepository: Repository<Permission>;
 
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))
@@ -31,33 +31,40 @@ export class PermissionGuard implements CanActivate {
       return true;
     }
 
-    const { section, id } = request.params;
-    let permissionForRoute: PermissionEnum;
+    const { section, id, relationProperty } = request.params;
+
+    const permissionForRoute: PermissionEnum[] = [];
+
     const method = request.method;
-    if (method === 'GET') {
-      permissionForRoute = PermissionEnum.LIST_READ;
+    if (method === 'GET' && !relationProperty) {
       if (id) {
-        permissionForRoute = PermissionEnum.SINGLE_READ;
+        permissionForRoute.push(PermissionEnum.SINGLE_READ);
+      } else {
+        permissionForRoute.push(PermissionEnum.LIST_READ);
       }
     }
     if (method === 'POST') {
-      permissionForRoute = PermissionEnum.CREATE;
+      permissionForRoute.push(PermissionEnum.CREATE);
     }
     if (method === 'PATCH') {
-      permissionForRoute = PermissionEnum.UPDATE;
+      permissionForRoute.push(PermissionEnum.UPDATE);
     }
     if (method === 'DELETE') {
-      permissionForRoute = PermissionEnum.DELETE;
+      permissionForRoute.push(PermissionEnum.DELETE);
     }
 
-    if (!permissionForRoute) {
+    if (method === 'GET' && relationProperty) {
+      permissionForRoute.push(PermissionEnum.CREATE, PermissionEnum.UPDATE);
+    }
+
+    if (!permissionForRoute.length) {
       return false;
     }
 
     const permission = await this.permissionRepository.findOneBy({
       section,
       groupId: user.groupId,
-      permission: permissionForRoute,
+      permission: In(permissionForRoute),
     });
 
     return !!permission;

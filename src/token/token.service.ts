@@ -6,7 +6,7 @@ import { ADMIN_DATASOURCE, APP_ENTITIES, AppEntities } from 'src/core';
 
 @Injectable()
 export class TokenService {
-  tokenRepository: Repository<Token>;
+  private tokenRepository: Repository<Token>;
 
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))

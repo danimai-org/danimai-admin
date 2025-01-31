@@ -1,1 +1,1 @@
-export type EntityType = new () => unknown;
+export type EntityType<T = any> = { new (): T };

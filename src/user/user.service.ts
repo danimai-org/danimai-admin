@@ -8,7 +8,8 @@ import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class UserService {
-  userRepository: Repository<User>;
+  private userRepository: Repository<User>;
+
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))
     dataSource: DataSource,

@@ -17,8 +17,9 @@ import { AddUsersDto } from './dto/add-users.dto';
 
 @Injectable()
 export class GroupService {
-  groupRepository: Repository<Group>;
-  userRepository: Repository<User>;
+  private groupRepository: Repository<Group>;
+  private userRepository: Repository<User>;
+
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))
     dataSource: DataSource,

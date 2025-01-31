@@ -5,8 +5,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { paginate, PaginateConfig, PaginateQuery } from 'nestjs-paginate';
-import { EntityType } from 'src/types';
-import { DataSource, FindOneOptions, FindOptionsRelations } from 'typeorm';
+import { BaseEntity, DataSource, FindOneOptions } from 'typeorm';
 import { ADMIN_DATASOURCE } from './constants';
 import {
   createPaginateConfig,
@@ -14,26 +13,36 @@ import {
   parseValidation,
 } from './service.helper';
 import { ZodObject } from 'zod';
+import { EntityType } from 'src/types';
 
-interface AdminSectionConfig<T = EntityType> {
-  paginatedConfig?: PaginateConfig<T>;
+type KeyOfEntity<T extends EntityType> = keyof {
+  [P in keyof InstanceType<T> as InstanceType<T>[P] extends BaseEntity
+    ? P
+    : never]: any;
+};
+
+type RelationPagination<T extends EntityType> = {
+  [R in KeyOfEntity<T>]: PaginateConfig<InstanceType<T>[R]>;
+};
+interface AdminSectionConfig<T extends EntityType> {
+  paginatedConfig?: PaginateConfig<InstanceType<T>>;
   entity: T;
-  relations?: FindOptionsRelations<T>;
-  getOneFindOptions?: FindOneOptions;
+  relations?: RelationPagination<T> | KeyOfEntity<T>[];
+  getOneFindOptions?: FindOneOptions<InstanceType<T>>;
 }
 
-export interface AdminSection<T = EntityType> {
+export interface AdminSection<T extends EntityType> {
   paginatedConfig: PaginateConfig<T>;
   entity: T;
-  relations?: FindOptionsRelations<T>;
   getOneFindOptions?: FindOneOptions;
   createValidationSchema: ZodObject<any>;
   updateValidationSchema: ZodObject<any>;
+  relations?: RelationPagination<T>;
 }
 
 @Injectable()
 export class AdminService {
-  sections: Map<string, AdminSection> = new Map();
+  sections: Map<string, AdminSection<any>> = new Map();
   dataSource: DataSource;
 
   constructor(
@@ -49,17 +58,40 @@ export class AdminService {
     );
   }
 
-  registerSection(name: string, _section: AdminSectionConfig) {
+  registerSection<T extends EntityType>(
+    name: string,
+    _section: AdminSectionConfig<T>,
+  ) {
     const section = this.setupSection(_section);
     this.sections.set(name, section);
   }
 
-  setupSection(section: AdminSectionConfig): AdminSection {
-    const columns = this.dataSource.getMetadata(section.entity).columns;
+  setupSection<T extends EntityType>(
+    section: AdminSectionConfig<T>,
+  ): AdminSection<T> {
+    const { columns, relations } = this.dataSource.getMetadata(section.entity);
 
     return {
       ...section,
       paginatedConfig: section.paginatedConfig || createPaginateConfig(columns),
+      relations:
+        Array.isArray(section.relations) || !section.relations
+          ? relations
+              .filter((relation) =>
+                Array.isArray(section.relations)
+                  ? section.relations.includes(relation.propertyName as any)
+                  : true,
+              )
+              .reduce((acc, relation) => {
+                const { columns } = this.dataSource.getMetadata(
+                  relation.target,
+                );
+                return {
+                  ...acc,
+                  [relation.propertyName]: createPaginateConfig(columns),
+                };
+              }, {} as RelationPagination<any>)
+          : section.relations,
       createValidationSchema: createValidationSchema(columns),
       updateValidationSchema: createValidationSchema(columns, true),
     };
@@ -81,6 +113,31 @@ export class AdminService {
     const repository = this.getRepository(sectionName);
     const queryBuilder = repository.createQueryBuilder();
     return paginate(query, queryBuilder, section.paginatedConfig);
+  }
+
+  async getAllRelation(
+    sectionName: string,
+    entityName: string,
+    relationProperty: string,
+    query: PaginateQuery,
+  ) {
+    const section = this.getSection(sectionName, entityName);
+
+    const paginatedConfig = Object.hasOwn(
+      section?.relations || {},
+      relationProperty,
+    )
+      ? section?.relations[relationProperty]
+      : null;
+
+    if (!paginatedConfig) {
+      throw new NotFoundException('Invalid relation given.');
+    }
+
+    const repository = this.dataSource.getRepository(section.entity);
+
+    const queryBuilder = repository.createQueryBuilder();
+    return paginate(query, queryBuilder, paginatedConfig);
   }
 
   async getOne(sectionName: string, entityName: string, id: string) {
