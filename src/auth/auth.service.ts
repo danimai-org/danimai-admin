@@ -35,7 +35,7 @@ export class AuthService {
     };
   }
 
-  async createAccessToken(sessionId: string) {
+  async createAccessToken(sessionId: number) {
     const accessTokenExpiresIn = process.env.ACCESS_TOKEN_EXPIRES_IN;
 
     const payload = {

@@ -8,9 +8,9 @@ import {
 } from 'typeorm';
 
 export abstract class BaseEntity extends _BaseEntity {
-  @ApiProperty({ format: 'uuid' })
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @ApiProperty()
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @ApiProperty()
   @CreateDateColumn()

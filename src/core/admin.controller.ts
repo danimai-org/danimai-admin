@@ -16,6 +16,8 @@ import { Paginate, PaginateQuery } from 'nestjs-paginate';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { GlobalExceptionFilter } from 'src/filters/global.filter';
 import { PermissionAuth } from 'src/decorators/auth.decorator';
+import { ParseSectionPipe } from 'src/pipes/section.pipe';
+import { AdminSection } from './admin.interface';
 
 @Controller('admin')
 @ApiTags('Admin Site')
@@ -27,66 +29,55 @@ export class AdminController {
     private adminService: AdminService,
   ) {}
 
-  @Get(':section/:entity')
+  @Get(':section')
   getAll(
-    @Param('section') section: string,
-    @Param('entity') entity: string,
+    @Param('section', ParseSectionPipe) section: AdminSection<any>,
     @Paginate() query: PaginateQuery,
   ) {
-    return this.adminService.getAll(section, entity, query);
+    return section.service.getMany(section, query);
   }
 
-  @Get(':section/:entity/relation/:relationProperty')
+  @Get(':section/relation/:relationProperty')
   getAllRelation(
-    @Param('section') section: string,
-    @Param('entity') entity: string,
+    @Param('section', ParseSectionPipe) section: AdminSection<any>,
     @Param('relationProperty') relationProperty: string,
     @Paginate() query: PaginateQuery,
   ) {
-    return this.adminService.getAllRelation(
-      section,
-      entity,
-      relationProperty,
-      query,
-    );
+    return section.service.getAllRelation(section, relationProperty, query);
   }
 
-  @Get(':section/:entity/:id')
+  @Get(':section/:id')
   getOne(
-    @Param('section') section: string,
-    @Param('entity') entity: string,
-    @Param('id') id: string,
+    @Param('section', ParseSectionPipe) section: AdminSection<any>,
+    @Param('id') id: number,
   ) {
-    return this.adminService.getOne(section, entity, id);
+    return section.service.getOne(section, id);
   }
 
-  @Post(':section/:entity')
+  @Post(':section')
   @ApiBody({})
   create(
-    @Param('section') section: string,
-    @Param('entity') entity: string,
+    @Param('section', ParseSectionPipe) section: AdminSection<any>,
     @Body() createDto: any,
   ) {
-    return this.adminService.create(section, entity, createDto);
+    return section.service.createOne(section, createDto);
   }
 
-  @Patch(':section/:entity/:id')
+  @Patch(':section/:id')
   @ApiBody({})
   update(
-    @Param('section') section: string,
-    @Param('entity') entity: string,
-    @Param('id') id: string,
+    @Param('section', ParseSectionPipe) section: AdminSection<any>,
+    @Param('id') id: number,
     @Body() updateDto: any,
   ) {
-    return this.adminService.update(section, entity, id, updateDto);
+    return section.service.updateOne(section, id, updateDto);
   }
 
-  @Delete(':section/:entity/:id')
+  @Delete(':section/:id')
   delete(
-    @Param('section') section: string,
-    @Param('entity') entity: string,
-    @Param('id') id: string,
+    @Param('section', ParseSectionPipe) section: AdminSection<any>,
+    @Param('id') id: number,
   ) {
-    return this.adminService.delete(section, entity, id);
+    return section.service.deleteOne(section, id);
   }
 }

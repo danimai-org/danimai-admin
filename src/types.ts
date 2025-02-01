@@ -1,1 +1,3 @@
-export type EntityType<T = any> = { new (): T };
+import { BaseEntity } from './entities';
+
+export type EntityType = typeof BaseEntity;
