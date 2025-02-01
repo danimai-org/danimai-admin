@@ -1,14 +1,13 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
-import { User } from 'src/entities/user.entity';
 import { RegisterDto } from '../auth-email/email.dto';
 import { UserUpdateDto } from './user-update.dto';
 import { ADMIN_DATASOURCE, APP_ENTITIES, AppEntities } from 'src/core';
-import { plainToInstance } from 'class-transformer';
+import { UserAbstract } from 'src/abstracts';
 
 @Injectable()
 export class UserService {
-  private userRepository: Repository<User>;
+  private userRepository: Repository<UserAbstract>;
 
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))
@@ -20,16 +19,17 @@ export class UserService {
   }
 
   async create(
-    userCreateDto: RegisterDto | Pick<User, 'emailVerifiedAt' | 'isActive'>,
+    userCreateDto:
+      | RegisterDto
+      | Pick<UserAbstract, 'emailVerifiedAt' | 'isActive'>,
   ) {
-    const user = User.create({ ...userCreateDto });
-    return this.userRepository.save(user);
+    return this.userRepository.save(this.userRepository.create(userCreateDto));
   }
 
-  async update(user: User, updateDto: UserUpdateDto) {
+  async update(user: UserAbstract, updateDto: UserUpdateDto) {
     await this.userRepository.update(user.id, updateDto);
 
-    return plainToInstance(User, {
+    return this.userRepository.create({
       ...user,
       ...updateDto,
     });

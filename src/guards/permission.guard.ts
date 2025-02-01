@@ -6,13 +6,14 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { PermissionAbstract } from 'src/abstracts';
 import { ADMIN_DATASOURCE, APP_ENTITIES, AppEntities } from 'src/core';
-import { Permission, PermissionEnum, RoleEnum, User } from 'src/entities';
+import { PermissionEnum, RoleEnum, User } from 'src/entities';
 import { DataSource, In, Repository } from 'typeorm';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
-  private permissionRepository: Repository<Permission>;
+  private permissionRepository: Repository<PermissionAbstract>;
 
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))

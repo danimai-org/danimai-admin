@@ -14,14 +14,14 @@ import {
 } from './email.dto';
 import { UserService } from '../user/user.service';
 import { TokenService } from '../token/token.service';
-import { User } from 'src/entities/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { AuthService } from '../auth/auth.service';
 import { ADMIN_DATASOURCE, APP_ENTITIES, AppEntities } from 'src/core';
+import { UserAbstract } from 'src/abstracts';
 
 @Injectable()
 export class EmailService {
-  private userRepository: Repository<User>;
+  private userRepository: Repository<UserAbstract>;
 
   constructor(
     private authService: AuthService,

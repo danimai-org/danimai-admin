@@ -1,7 +1,7 @@
-import { RoleEnum } from 'src/entities';
+import { BaseEntity, RoleEnum } from 'src/entities';
 import { GroupAbstract } from './group.abstract';
 
-export abstract class UserAbstract {
+export abstract class UserAbstract extends BaseEntity {
   name: string;
   email: string;
   password: string;

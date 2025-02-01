@@ -1,9 +1,9 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { User } from 'src/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
 import { MailData } from 'src/mail/mail.interface';
 import { SessionService } from '../session/session.service';
+import { UserAbstract } from 'src/abstracts';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +14,7 @@ export class AuthService {
     private sessionService: SessionService,
   ) {}
 
-  async createJwtToken(user: User) {
+  async createJwtToken(user: UserAbstract) {
     const refreshTokenExpiresIn = process.env.REFRESH_TOKEN_EXPIRES_IN;
     const session = await this.sessionService.create(user);
     const accessToken = await this.createAccessToken(session.id);

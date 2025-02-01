@@ -11,16 +11,16 @@ import {
   APP_ENTITIES,
   AppEntities,
 } from 'src/core';
-import { Permission } from 'src/entities';
 import { DataSource, Repository } from 'typeorm';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { CreateBulkPermissionDto } from './dto/create-bulk-permission.dto';
 import { RemoveBulkPermissionDto } from './dto/remove-bulk-permission.dto';
 import { GroupService } from 'src/group/group.service';
+import { PermissionAbstract } from 'src/abstracts';
 
 @Injectable()
 export class PermissionService {
-  private permissionRepository: Repository<Permission>;
+  private permissionRepository: Repository<PermissionAbstract>;
 
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))

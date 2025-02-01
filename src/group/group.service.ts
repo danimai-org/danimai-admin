@@ -6,7 +6,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { ADMIN_DATASOURCE, APP_ENTITIES, AppEntities } from 'src/core';
-import { Group, RoleEnum, User } from 'src/entities';
+import { Group, RoleEnum } from 'src/entities';
 import { DataSource, In, Not, Repository } from 'typeorm';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
@@ -14,11 +14,12 @@ import { paginate, PaginateQuery } from 'nestjs-paginate';
 import { groupPaginateConfig } from './group.pagination';
 import { plainToInstance } from 'class-transformer';
 import { AddUsersDto } from './dto/add-users.dto';
+import { GroupAbstract, UserAbstract } from 'src/abstracts';
 
 @Injectable()
 export class GroupService {
-  private groupRepository: Repository<Group>;
-  private userRepository: Repository<User>;
+  private groupRepository: Repository<GroupAbstract>;
+  private userRepository: Repository<UserAbstract>;
 
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))

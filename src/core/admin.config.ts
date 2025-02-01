@@ -1,11 +1,17 @@
-import { Group, Permission, Session, Token, User } from 'src/entities';
+import {
+  GroupAbstract,
+  PermissionAbstract,
+  SessionAbstract,
+  TokenAbstract,
+  UserAbstract,
+} from 'src/abstracts';
 
 export interface AppEntities {
-  user: typeof User;
-  group: typeof Group;
-  permission: typeof Permission;
-  session: typeof Session;
-  token: typeof Token;
+  user: typeof UserAbstract;
+  group: typeof GroupAbstract;
+  permission: typeof PermissionAbstract;
+  session: typeof SessionAbstract;
+  token: typeof TokenAbstract;
 }
 export interface AdminAppConfigurationOptions {
   connection?: string;

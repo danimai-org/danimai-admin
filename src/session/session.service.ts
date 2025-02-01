@@ -5,13 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
-import { Session } from 'src/entities/session.entity';
-import { User } from 'src/entities/user.entity';
 import { ADMIN_DATASOURCE, APP_ENTITIES, AppEntities } from 'src/core';
+import { SessionAbstract, UserAbstract } from 'src/abstracts';
 
 @Injectable()
 export class SessionService {
-  private sessionRepository: Repository<Session>;
+  private sessionRepository: Repository<SessionAbstract>;
 
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))
@@ -22,7 +21,7 @@ export class SessionService {
     this.sessionRepository = dataSource.getRepository(session);
   }
 
-  create(user: User) {
+  create(user: UserAbstract) {
     return this.sessionRepository
       .create({
         user,

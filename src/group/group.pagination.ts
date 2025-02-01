@@ -1,7 +1,7 @@
 import { PaginateConfig } from 'nestjs-paginate';
-import { Group } from 'src/entities';
+import { GroupAbstract } from 'src/abstracts';
 
-export const groupPaginateConfig: PaginateConfig<Group> = {
+export const groupPaginateConfig: PaginateConfig<GroupAbstract> = {
   sortableColumns: ['createdAt'],
   defaultSortBy: [['createdAt', 'DESC']],
   searchableColumns: ['name', 'description'],

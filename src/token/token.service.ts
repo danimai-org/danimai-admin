@@ -1,12 +1,12 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { User } from 'src/entities/user.entity';
-import { Token, TokenType } from 'src/entities/token.entity';
+import { TokenType } from 'src/entities/token.entity';
 import { DataSource, Repository } from 'typeorm';
 import { ADMIN_DATASOURCE, APP_ENTITIES, AppEntities } from 'src/core';
+import { TokenAbstract, UserAbstract } from 'src/abstracts';
 
 @Injectable()
 export class TokenService {
-  private tokenRepository: Repository<Token>;
+  private tokenRepository: Repository<TokenAbstract>;
 
   constructor(
     @Inject(forwardRef(() => ADMIN_DATASOURCE))
@@ -18,7 +18,7 @@ export class TokenService {
   }
 
   async create(
-    user: User,
+    user: UserAbstract,
     type: keyof typeof TokenType = 'REGISTER_VERIFY',
     expiresAt: Date = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
   ) {
