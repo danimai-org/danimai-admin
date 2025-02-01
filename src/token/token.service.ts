@@ -23,7 +23,7 @@ export class TokenService {
     expiresAt: Date = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
   ) {
     const token = this.tokenRepository.create({
-      userId: user.id,
+      user: { id: user.id },
       type: TokenType[type],
       expiresAt,
     });

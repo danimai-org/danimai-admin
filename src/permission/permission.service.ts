@@ -37,7 +37,9 @@ export class PermissionService {
   async getByGroup(groupId: number) {
     return this.permissionRepository.find({
       where: {
-        groupId,
+        group: {
+          id: groupId,
+        },
       },
     });
   }

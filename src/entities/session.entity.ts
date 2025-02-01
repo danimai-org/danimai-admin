@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
 import { BaseEntity } from './base';
 import { SessionAbstract } from 'src/abstracts';
@@ -8,10 +8,6 @@ import { SessionAbstract } from 'src/abstracts';
 })
 export class Session extends BaseEntity implements SessionAbstract {
   @ManyToOne(() => User, (user) => user.sessions, { eager: true })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn()
   user: User;
-
-  @Column()
-  @Index()
-  userId: number;
 }

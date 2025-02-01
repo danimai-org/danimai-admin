@@ -56,7 +56,7 @@ export class User extends BaseEntity implements UserAbstract {
 
   @ApiProperty()
   @ManyToOne(() => Group, (group) => group.users)
-  @JoinColumn({ name: 'groupId' })
+  @JoinColumn()
   group: Group;
 
   @ApiProperty()

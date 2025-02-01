@@ -1,3 +1,5 @@
+import { UserAbstract } from './user.abstract';
+
 export abstract class SessionAbstract {
-  userId: number;
+  user: UserAbstract;
 }

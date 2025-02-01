@@ -1,10 +1,11 @@
 import { TokenType } from 'src/entities';
+import { UserAbstract } from './user.abstract';
 
 export abstract class TokenAbstract {
   token: string;
   isUsed: boolean;
   type: TokenType;
   expiresAt: Date;
-  userId: number;
+  user: UserAbstract;
   generateToken: () => Promise<void>;
 }

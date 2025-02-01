@@ -15,7 +15,7 @@ export enum PermissionEnum {
 @Entity({
   name: 'permissions',
 })
-@Index(['section', 'permission', 'groupId'], { unique: true })
+@Index(['section', 'permission', 'group_id'], { unique: true })
 export class Permission extends BaseEntity implements PermissionAbstract {
   @ApiProperty()
   @Column()
@@ -26,11 +26,7 @@ export class Permission extends BaseEntity implements PermissionAbstract {
   permission: PermissionEnum;
 
   @ApiProperty()
-  @Column()
-  groupId: number;
-
-  @ApiProperty()
   @ManyToOne(() => Group, (group) => group.permissions, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'groupId' })
+  @JoinColumn()
   group: Group;
 }

@@ -63,7 +63,7 @@ export class PermissionGuard implements CanActivate {
 
     const permission = await this.permissionRepository.findOneBy({
       section,
-      groupId: user.groupId,
+      group: { id: user.groupId },
       permission: In(permissionForRoute),
     });
 
