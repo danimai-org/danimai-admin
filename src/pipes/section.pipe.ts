@@ -1,10 +1,10 @@
-import { PipeTransform, Injectable, Inject } from '@nestjs/common';
+import { PipeTransform, Injectable, Inject, forwardRef } from '@nestjs/common';
 import { ADMIN_SERVICE, AdminService } from 'src/core';
 
 @Injectable()
 export class ParseSectionPipe implements PipeTransform {
   constructor(
-    @Inject(ADMIN_SERVICE)
+    @Inject(forwardRef(() => ADMIN_SERVICE))
     private adminService: AdminService,
   ) {}
 

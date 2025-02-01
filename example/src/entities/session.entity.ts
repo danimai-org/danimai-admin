@@ -10,7 +10,7 @@ export class Session extends BaseEntity implements SessionAbstract {
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @Column({ type: 'uuid' })
+  @Column()
   @Index()
-  userId: string;
+  userId: number;
 }
