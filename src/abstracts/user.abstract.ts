@@ -5,7 +5,7 @@ export abstract class UserAbstract {
   email: string;
   password: string;
   isActive: boolean;
-  groupId: string;
+  groupId: number;
   emailVerifiedAt: Date;
   role: RoleEnum;
   previousPassword: string;

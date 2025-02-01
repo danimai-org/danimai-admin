@@ -17,7 +17,6 @@ export class AuthService {
   async createJwtToken(user: User) {
     const refreshTokenExpiresIn = process.env.REFRESH_TOKEN_EXPIRES_IN;
     const session = await this.sessionService.create(user);
-
     const accessToken = await this.createAccessToken(session.id);
     const refreshToken = this.jwtService.sign(
       {

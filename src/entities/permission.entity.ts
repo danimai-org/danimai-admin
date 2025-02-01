@@ -26,8 +26,8 @@ export class Permission extends BaseEntity implements PermissionAbstract {
   permission: PermissionEnum;
 
   @ApiProperty()
-  @Column({ type: 'uuid' })
-  groupId: string;
+  @Column()
+  groupId: number;
 
   @ApiProperty()
   @ManyToOne(() => Group, (group) => group.permissions, { onDelete: 'CASCADE' })

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   ParseUUIDPipe,
   Post,
   UseFilters,
@@ -25,7 +26,7 @@ export class PermissionController {
   constructor(private service: PermissionService) {}
 
   @Get('group/:groupId')
-  getByGroupId(@Param('groupId', ParseUUIDPipe) groupId: string) {
+  getByGroupId(@Param('groupId', ParseIntPipe) groupId: number) {
     return this.service.getByGroup(groupId);
   }
 

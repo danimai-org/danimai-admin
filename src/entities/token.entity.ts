@@ -24,8 +24,8 @@ export class Token extends BaseEntity implements TokenAbstract {
   @Column({ type: 'timestamp' })
   expiresAt: Date;
 
-  @Column({ type: 'uuid' })
-  userId: string;
+  @Column()
+  userId: number;
 
   @ManyToOne(() => User, (user) => user.tokens)
   @JoinColumn({ name: 'userId' })

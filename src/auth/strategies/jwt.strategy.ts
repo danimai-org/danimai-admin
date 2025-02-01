@@ -10,7 +10,7 @@ import { SessionService } from '../../session/session.service';
 import { GlobalExceptionFilter } from 'src/filters/global.filter';
 
 export type JwtPayload = {
-  id: string;
+  id: number;
   type: 'ACCESS' | 'REFRESH';
   iat: number;
   exp: number;

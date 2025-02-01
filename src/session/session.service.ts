@@ -30,7 +30,7 @@ export class SessionService {
       .save();
   }
 
-  async get(id: string) {
+  async get(id: number) {
     const session = await this.sessionRepository.findOneBy({
       id,
     });
@@ -40,9 +40,7 @@ export class SessionService {
     return session;
   }
 
-  async delete(id: string) {
-    await this.sessionRepository.softDelete({
-      id,
-    });
+  async delete(id: number) {
+    await this.sessionRepository.softDelete(id);
   }
 }

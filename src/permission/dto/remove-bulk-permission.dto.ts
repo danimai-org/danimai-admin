@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID } from 'class-validator';
+import { IsInt } from 'class-validator';
 
 export class RemoveBulkPermissionDto {
-  @ApiProperty({ format: 'uuid' })
-  @IsUUID('4', { each: true })
-  ids: string[];
+  @ApiProperty({ isArray: true })
+  @IsInt({ each: true })
+  ids: number[];
 }

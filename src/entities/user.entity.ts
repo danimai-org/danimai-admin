@@ -40,8 +40,8 @@ export class User extends BaseEntity implements UserAbstract {
   isActive: boolean;
 
   @ApiProperty()
-  @Column({ type: 'uuid', nullable: true })
-  groupId: string;
+  @Column({ nullable: true })
+  groupId: number;
 
   @ApiProperty()
   @Column({ type: 'timestamp with time zone', nullable: true })

@@ -12,8 +12,8 @@ export class FormService {
     private dataSource: DataSource,
   ) {}
 
-  getUpdateForm(sectionName: string, entityName: string) {
-    const section = this.adminService.getSection(sectionName, entityName);
+  getUpdateForm(sectionName: string) {
+    const section = this.adminService.getSection(sectionName);
     return zodToJsonSchema(section.updateValidationSchema);
   }
 }

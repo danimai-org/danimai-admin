@@ -30,7 +30,7 @@ export class GroupController {
   }
 
   @Get(':id')
-  getOne(@Param('id') id: string) {
+  getOne(@Param('id') id: number) {
     return this.service.getOne(id);
   }
 
@@ -40,12 +40,12 @@ export class GroupController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDto: UpdateGroupDto) {
+  update(@Param('id') id: number, @Body() updateDto: UpdateGroupDto) {
     return this.service.update(id, updateDto);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string) {
+  delete(@Param('id') id: number) {
     return this.service.delete(id);
   }
 

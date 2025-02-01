@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID } from 'class-validator';
+import { IsInt } from 'class-validator';
 
 export class AddUsersDto {
-  @ApiProperty({ format: 'uuid' })
-  @IsUUID('4', { each: true })
-  userIds: string[];
+  @ApiProperty({ isArray: true })
+  @IsInt({ each: true })
+  userIds: number[];
 
-  @ApiProperty({ format: 'uuid' })
-  @IsUUID('4')
-  id: string;
+  @ApiProperty({})
+  @IsInt()
+  id: number;
 }

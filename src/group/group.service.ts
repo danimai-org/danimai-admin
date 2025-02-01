@@ -38,7 +38,7 @@ export class GroupService {
     );
   }
 
-  async getOne(id: string) {
+  async getOne(id: number) {
     const group = await this.groupRepository.findOneBy({
       id,
     });
@@ -54,7 +54,7 @@ export class GroupService {
     return this.groupRepository.save(createDto);
   }
 
-  async update(id: string, updateDto: UpdateGroupDto) {
+  async update(id: number, updateDto: UpdateGroupDto) {
     const group = await this.groupRepository.findOneBy({
       id,
     });
@@ -70,7 +70,7 @@ export class GroupService {
     });
   }
 
-  async delete(id: string) {
+  async delete(id: number) {
     const group = await this.groupRepository.findOneBy({
       id,
     });

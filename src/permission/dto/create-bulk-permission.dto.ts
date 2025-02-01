@@ -1,12 +1,12 @@
 import { Type } from 'class-transformer';
-import { IsEnum, IsString, IsUUID, ValidateNested } from 'class-validator';
+import { IsEnum, IsInt, IsString, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { PermissionEnum } from 'src/entities';
 
 export class CreateBulkPermissionDto {
-  @ApiProperty({ format: 'uuid' })
-  @IsUUID('4')
-  groupId: string;
+  @ApiProperty()
+  @IsInt()
+  groupId: number;
 
   @ApiProperty()
   @Type(() => CreatePermissionDto)

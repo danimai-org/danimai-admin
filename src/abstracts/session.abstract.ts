@@ -1,3 +1,3 @@
 export abstract class SessionAbstract {
-  userId: string;
+  userId: number;
 }

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsInt, IsString } from 'class-validator';
 import { PermissionEnum } from 'src/entities';
 
 export class CreatePermissionDto {
@@ -11,7 +11,7 @@ export class CreatePermissionDto {
   @IsEnum(PermissionEnum)
   permission: PermissionEnum;
 
-  @ApiProperty({ format: 'uuid' })
-  @IsUUID('4')
-  groupId: string;
+  @ApiProperty()
+  @IsInt()
+  groupId: number;
 }

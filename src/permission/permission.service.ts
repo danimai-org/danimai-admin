@@ -34,7 +34,7 @@ export class PermissionService {
     this.permissionRepository = dataSource.getRepository(permission);
   }
 
-  async getByGroup(groupId: string) {
+  async getByGroup(groupId: number) {
     return this.permissionRepository.find({
       where: {
         groupId,

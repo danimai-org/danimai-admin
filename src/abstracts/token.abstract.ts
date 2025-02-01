@@ -5,6 +5,6 @@ export abstract class TokenAbstract {
   isUsed: boolean;
   type: TokenType;
   expiresAt: Date;
-  userId: string;
+  userId: number;
   generateToken: () => Promise<void>;
 }
