@@ -3,6 +3,9 @@
   "version": "0.0.2",
   "description": "",
   "author": "",
+  "repository": {
+    "url": "https://github.com/danimai-org/danimai-admin.git"
+  },
   "license": "UNLICENSED",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",

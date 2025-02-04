@@ -14,6 +14,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MailerConfigClass } from 'src/mail/mailerConfig.service';
 import { Group, Permission, Session, Token, User } from 'src/entities';
+import { BaseService } from 'src/base/base.service';
 
 export interface AdminCoreModuleConfig {
   adminService?: typeof AdminService;
@@ -21,6 +22,7 @@ export interface AdminCoreModuleConfig {
   appConfig?: DeepPartial<AdminAppConfigurationOptions>;
   dataSource: DataSource;
   appEntities?: AppEntities;
+  services?: BaseService<any>[];
 }
 
 @Global()

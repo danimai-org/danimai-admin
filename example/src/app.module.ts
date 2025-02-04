@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AdminModule } from 'danimai-admin';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeORMConfigFactory } from './database/typeorm.factory';
@@ -31,7 +29,7 @@ import { Token } from './entities/token.entity';
     ConfigModule.forRoot(),
     PostModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

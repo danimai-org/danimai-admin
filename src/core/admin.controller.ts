@@ -2,33 +2,31 @@ import {
   Body,
   Controller,
   Delete,
-  forwardRef,
   Get,
-  Inject,
   Param,
   Patch,
   Post,
   UseFilters,
 } from '@nestjs/common';
-import { ADMIN_SERVICE } from './constants';
-import { AdminService } from './admin.service';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { GlobalExceptionFilter } from 'src/filters/global.filter';
 import { PermissionAuth } from 'src/decorators/auth.decorator';
 import { ParseSectionPipe } from 'src/pipes/section.pipe';
 import { AdminSection } from './admin.interface';
 
+@ApiParam({
+  name: 'section',
+  type: 'string',
+})
 @Controller('admin')
 @ApiTags('Admin Site')
 @PermissionAuth()
 @UseFilters(GlobalExceptionFilter)
 export class AdminController {
-  constructor(
-    @Inject(forwardRef(() => ADMIN_SERVICE))
-    private adminService: AdminService,
-  ) {}
-
+  @ApiOperation({
+    summary: 'Get many instances of section entity with pagination',
+  })
   @Get(':section')
   getAll(
     @Param('section', ParseSectionPipe) section: AdminSection<any>,
@@ -37,6 +35,9 @@ export class AdminController {
     return section.service.getMany(section, query);
   }
 
+  @ApiOperation({
+    summary: 'Get relation instances of section entity',
+  })
   @Get(':section/relation/:relationProperty')
   getAllRelation(
     @Param('section', ParseSectionPipe) section: AdminSection<any>,
@@ -46,6 +47,9 @@ export class AdminController {
     return section.service.getAllRelation(section, relationProperty, query);
   }
 
+  @ApiOperation({
+    summary: 'Get single instance of section entity by id',
+  })
   @Get(':section/:id')
   getOne(
     @Param('section', ParseSectionPipe) section: AdminSection<any>,
@@ -54,6 +58,9 @@ export class AdminController {
     return section.service.getOne(section, id);
   }
 
+  @ApiOperation({
+    summary: 'Create a instance of section entity',
+  })
   @Post(':section')
   @ApiBody({})
   create(
@@ -63,6 +70,9 @@ export class AdminController {
     return section.service.createOne(section, createDto);
   }
 
+  @ApiOperation({
+    summary: 'update a instance of section entity',
+  })
   @Patch(':section/:id')
   @ApiBody({})
   update(
@@ -73,6 +83,9 @@ export class AdminController {
     return section.service.updateOne(section, id, updateDto);
   }
 
+  @ApiOperation({
+    summary: 'delete a instance of section entity by id',
+  })
   @Delete(':section/:id')
   delete(
     @Param('section', ParseSectionPipe) section: AdminSection<any>,

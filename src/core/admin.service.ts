@@ -1,14 +1,9 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { ADMIN_DATASOURCE } from './constants';
-import { createPaginateConfig, createValidationSchema } from './service.helper';
 import { EntityType } from 'src/types';
-import {
-  AdminSection,
-  AdminSectionConfig,
-  RelationPagination,
-} from './admin.interface';
-import { BaseService } from './base.service';
+import { AdminSection, AdminSectionConfig } from './admin.interface';
+import { BaseService } from 'src/base/base.service';
 
 @Injectable()
 export class AdminService {
@@ -34,34 +29,11 @@ export class AdminService {
   setupSection<T extends EntityType>(
     section: AdminSectionConfig<T>,
   ): AdminSection<T> {
-    const { columns, relations } = this.dataSource.getMetadata(section.entity);
-
     return {
       ...section,
-      paginatedConfig: section.paginatedConfig || createPaginateConfig(columns),
-      relations:
-        Array.isArray(section.relations) || !section.relations
-          ? relations
-              .filter((relation) =>
-                Array.isArray(section.relations)
-                  ? section.relations.includes(relation.propertyName as any)
-                  : true,
-              )
-              .reduce((acc, relation) => {
-                const { columns } = this.dataSource.getMetadata(
-                  relation.target,
-                );
-                return {
-                  ...acc,
-                  [relation.propertyName]: createPaginateConfig(columns),
-                };
-              }, {} as RelationPagination<any>)
-          : section.relations,
-      createValidationSchema: createValidationSchema(columns),
-      updateValidationSchema: createValidationSchema(columns, true),
-      dataSource: this.dataSource,
       repository: this.getRepository(section),
-      service: new BaseService(),
+      dataSource: this.dataSource,
+      service: section.service ? new section.service() : new BaseService(),
     };
   }
 
