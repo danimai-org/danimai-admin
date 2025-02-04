@@ -1,6 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntity } from 'danimai-admin';
+import { User } from './user.entity';
 
 @Entity({ name: 'posts' })
 export class Post extends BaseEntity {
@@ -15,4 +16,9 @@ export class Post extends BaseEntity {
   @ApiProperty()
   @Column({ type: 'boolean', default: false })
   isPublished: boolean;
+
+  @ApiProperty()
+  @ManyToMany(() => User, (user) => user.posts)
+  @JoinTable()
+  users: User[];
 }

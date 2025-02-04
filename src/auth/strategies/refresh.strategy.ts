@@ -1,10 +1,12 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, UseFilters } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { SessionService } from '../../session/session.service';
 import { JwtPayload } from './jwt.strategy';
+import { GlobalExceptionFilter } from 'src/filters/global.filter';
 
 @Injectable()
+@UseFilters(GlobalExceptionFilter)
 export class RefreshJwtStrategy extends PassportStrategy(Strategy, 'refresh') {
   constructor(private sessionService: SessionService) {
     super({

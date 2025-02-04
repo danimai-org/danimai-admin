@@ -5,6 +5,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToMany,
 } from 'typeorm';
@@ -13,6 +14,7 @@ import { Token } from './token.entity';
 import { Session } from './session.entity';
 import { BaseEntity, UserAbstract } from 'danimai-admin';
 import * as bcrypt from 'bcryptjs';
+import { Post } from './post.entity';
 
 export enum RoleEnum {
   ADMIN = 'ADMIN',
@@ -58,11 +60,15 @@ export class User extends BaseEntity implements UserAbstract {
 
   @ApiProperty()
   @OneToMany(() => Token, (token) => token.user)
-  tokens: Group;
+  tokens: Token[];
 
   @ApiProperty()
   @OneToMany(() => Session, (session) => session.user)
-  sessions: Group;
+  sessions: Session[];
+
+  @ApiProperty()
+  @ManyToMany(() => Post, (post) => post.users)
+  posts: Post[];
 
   @BeforeInsert()
   @BeforeUpdate()

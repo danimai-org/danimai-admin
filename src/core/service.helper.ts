@@ -1,7 +1,8 @@
 import { FilterOperator, PaginateConfig } from 'nestjs-paginate';
-import { ColumnType } from 'typeorm';
+import { ColumnType, In, QueryRunner } from 'typeorm';
 import { ColumnMetadata } from 'typeorm/metadata/ColumnMetadata';
-import { z, ZodObject, ZodRawShape } from 'zod';
+import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
+import { z, ZodIssue, ZodObject, ZodRawShape } from 'zod';
 
 const TextType: ColumnType[] = ['varchar', 'text', 'enum'];
 const NumberType: ColumnType[] = [
@@ -89,29 +90,62 @@ export function createPaginateConfig(
 }
 
 export function createValidationSchema(
-  columns: ColumnMetadata[],
+  columns: (ColumnMetadata | RelationMetadata)[],
   patch = false,
 ): ZodObject<any> {
   const validationObject = {} as ZodRawShape;
 
   for (const column of columns) {
+    const relationColumn = column as RelationMetadata;
     if (excludeColumns.includes(column.propertyName)) {
       continue;
     }
 
-    if (TextType.includes(column.type as any)) {
+    if (relationColumn?.relationType) {
+      if (relationColumn.relationType != 'many-to-many') {
+        continue;
+      }
+
+      const columnType = (relationColumn.joinColumns?.[0].type as any).name;
+      if (columnType === 'String') {
+        validationObject[relationColumn.propertyName] = z
+          .array(z.string())
+          .optional();
+      }
+
+      if (columnType === 'Number') {
+        validationObject[relationColumn.propertyName] = z
+          .array(z.number())
+          .optional();
+      }
+      continue;
+    }
+
+    if (
+      TextType.includes(column.type as any) ||
+      (column.type as any)?.name === 'String'
+    ) {
       validationObject[column.propertyName] = z.string();
     }
 
-    if (NumberType.includes(column.type as any)) {
+    if (
+      NumberType.includes(column.type as any) ||
+      (column.type as any)?.name === 'Number'
+    ) {
       validationObject[column.propertyName] = z.number();
     }
 
-    if (DateType.includes(column.type as any)) {
+    if (
+      DateType.includes(column.type as any) ||
+      (column.type as any)?.name === 'Date'
+    ) {
       validationObject[column.propertyName] = z.string().datetime();
     }
 
-    if (BooleanType.includes(column.type as any)) {
+    if (
+      BooleanType.includes(column.type as any) ||
+      (column.type as any)?.name === 'Boolean'
+    ) {
       validationObject[column.propertyName] = z.boolean();
     }
 
@@ -127,10 +161,72 @@ export function createValidationSchema(
   return z.object(validationObject);
 }
 
-export function parseValidation(
-  dto: Record<string, any>,
-  schema: ZodObject<any>,
+export function parseValidation<T>(dto: T, schema: ZodObject<any>) {
+  return schema.safeParse(dto);
+}
+
+export async function validateRelation(
+  data: Record<string, any>,
+  relations: RelationMetadata[],
+  queryRunner: QueryRunner,
 ) {
-  const result = schema.safeParse(dto);
-  return result.error;
+  const relationErrors: Omit<ZodIssue, 'argumentsError'>[] = [];
+
+  // Validate relations
+  for (const relation of relations) {
+    if (!Object.hasOwn(data, relation.propertyName)) {
+      continue;
+    }
+
+    if (
+      !(Array.isArray(data[relation.propertyName])
+        ? data[relation.propertyName].length
+        : data[relation.propertyName])
+    ) {
+      continue;
+    }
+
+    if (
+      relation.relationType === 'many-to-one' ||
+      relation.relationType === 'one-to-one'
+    ) {
+      const repository = queryRunner.manager.getRepository(
+        relation.inverseEntityMetadata.name,
+      );
+      const existingInstance = await repository.findOneBy({
+        id: data[relation.propertyName],
+      });
+      if (!existingInstance) {
+        relationErrors.push({
+          code: 'invalid_arguments',
+          message: `${relation.propertyName} does not exists.`,
+          path: [relation.propertyName],
+        });
+      }
+    }
+    if (relation.relationType === 'many-to-many') {
+      const repository = queryRunner.manager.getRepository(
+        relation.inverseEntityMetadata.name,
+      );
+      const existingInstances = await repository.findBy({
+        id: In(data[relation.propertyName]),
+      });
+
+      if (
+        existingInstances.length !== new Set(data[relation.propertyName]).size
+      ) {
+        relationErrors.push({
+          code: 'invalid_arguments',
+          message: `${relation.propertyName} ${data[relation.propertyName].filter((id) => !existingInstances.find((existingInstance) => existingInstance.id !== id))} do not exist.`,
+          path: [relation.propertyName],
+        });
+      } else {
+        data[relation.propertyName] = data[relation.propertyName].map((id) =>
+          repository.create({ id }),
+        );
+      }
+    }
+  }
+
+  return { relationErrors, data };
 }

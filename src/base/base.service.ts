@@ -1,6 +1,6 @@
 import { paginate, PaginateConfig, PaginateQuery } from 'nestjs-paginate';
 import { EntityType } from 'src/types';
-import { FindOptionsWhere } from 'typeorm';
+import { FindOptionsWhere, QueryRunner } from 'typeorm';
 import { AdminSection, RelationPagination } from '../core/admin.interface';
 import {
   NotFoundException,
@@ -10,9 +10,11 @@ import {
   createPaginateConfig,
   createValidationSchema,
   parseValidation,
+  validateRelation,
 } from '../core/service.helper';
 import { ZodObject } from 'zod';
-import { FindOneBaseOptions } from './base.interface';
+import { CreateOneOptions, FindOneBaseOptions } from './base.interface';
+import { BaseEntity } from 'src/entities';
 
 export class BaseService<Entity extends EntityType> {
   paginatedConfig?: PaginateConfig<InstanceType<Entity>>;
@@ -22,6 +24,7 @@ export class BaseService<Entity extends EntityType> {
   getOneColumns?: string[];
   createValidationSchema?: ZodObject<any>;
   updateValidationSchema?: ZodObject<any>;
+  createOneOptions: CreateOneOptions<Entity>;
   findOneOptions: FindOneBaseOptions<InstanceType<Entity>> = {};
 
   async getMany(section: AdminSection<Entity>, query: PaginateQuery) {
@@ -66,6 +69,7 @@ export class BaseService<Entity extends EntityType> {
 
   async getOne(section: AdminSection<Entity>, id: number) {
     return section.repository.findOne({
+      loadRelationIds: true,
       ...this.findOneOptions,
       where: {
         id,
@@ -74,40 +78,81 @@ export class BaseService<Entity extends EntityType> {
     });
   }
 
-  createOneValidate(
+  async createOneValidate(
     section: AdminSection<Entity>,
     createDto: InstanceType<Entity>,
-  ) {
-    const { columns } = section.dataSource.getMetadata(section.entity);
-    const validationSchema =
-      this.createValidationSchema || createValidationSchema(columns);
-    const error = parseValidation(createDto, validationSchema);
-    if (error) {
-      throw new UnprocessableEntityException(error.issues);
+  ): Promise<BaseEntity> {
+    const queryRunner = section.dataSource.createQueryRunner();
+    try {
+      const { columns, relations } = section.dataSource.getMetadata(
+        section.entity,
+      );
+      const validationSchema =
+        this.createValidationSchema ||
+        createValidationSchema([...columns, ...relations]);
+      const { error, data } = parseValidation(createDto, validationSchema);
+
+      if (error) {
+        throw new UnprocessableEntityException(error.issues);
+      }
+
+      const { relationErrors, data: dataWithRelations } =
+        await validateRelation(data, relations, queryRunner);
+
+      if (relationErrors.length) {
+        throw new UnprocessableEntityException(relationErrors);
+      }
+
+      const instance = queryRunner.manager
+        .getRepository(section.entity)
+        .create(dataWithRelations as InstanceType<Entity>);
+      await queryRunner.release();
+      return instance;
+    } catch (error) {
+      await queryRunner.release();
+      throw error;
     }
-    return section.repository.create(createDto);
   }
 
   async createOne(
     section: AdminSection<Entity>,
     createDto: InstanceType<Entity>,
   ) {
-    const instance = this.createOneValidate(section, createDto);
+    const instance = await this.createOneValidate(section, createDto);
     return instance.save();
   }
 
-  updateOneValidate(
+  async updateOneValidate(
     section: AdminSection<Entity>,
     updateDto: InstanceType<Entity>,
+    queryRunner: QueryRunner,
   ) {
-    const { columns } = section.dataSource.getMetadata(section.entity);
+    const { columns, relations } = section.dataSource.getMetadata(
+      section.entity,
+    );
     const validationSchema =
-      this.updateValidationSchema || createValidationSchema(columns, true);
-    const error = parseValidation(updateDto, validationSchema);
+      this.createValidationSchema ||
+      createValidationSchema([...columns, ...relations], true);
+    const { error, data } = parseValidation(updateDto, validationSchema);
+
     if (error) {
       throw new UnprocessableEntityException(error.issues);
     }
-    return section.repository.create(updateDto);
+
+    const { relationErrors, data: dataWithRelations } = await validateRelation(
+      data,
+      relations,
+      queryRunner,
+    );
+
+    if (relationErrors.length) {
+      throw new UnprocessableEntityException(relationErrors);
+    }
+
+    const instance = queryRunner.manager
+      .getRepository(section.entity)
+      .create(dataWithRelations as InstanceType<Entity>);
+    return instance;
   }
 
   async updateOne(
@@ -115,18 +160,30 @@ export class BaseService<Entity extends EntityType> {
     id: number,
     updateDto: InstanceType<Entity>,
   ) {
-    const instance = this.updateOneValidate(section, updateDto);
+    const queryRunner = section.dataSource.createQueryRunner();
+    try {
+      const instance = await this.updateOneValidate(
+        section,
+        updateDto,
+        queryRunner,
+      );
 
-    const entity = await section.repository.findOneBy({
-      id,
-    } as FindOptionsWhere<InstanceType<Entity>>);
+      const entity = await section.repository.findOneBy({
+        id,
+      } as FindOptionsWhere<InstanceType<Entity>>);
 
-    if (!entity) {
-      throw new NotFoundException(`${section.entity.name} not found.`);
+      if (!entity) {
+        throw new NotFoundException(`${section.entity.name} not found.`);
+      }
+
+      instance.id = entity.id;
+      await instance.save();
+      await queryRunner.release();
+      return instance;
+    } catch (error) {
+      await queryRunner.release();
+      throw error;
     }
-
-    instance.id = id;
-    return instance.save();
   }
 
   async deleteOne(section: AdminSection<Entity>, id: number) {
