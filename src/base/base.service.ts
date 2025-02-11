@@ -24,7 +24,7 @@ export class BaseService<Entity extends EntityType> {
   getOneColumns?: string[];
   createValidationSchema?: ZodObject<any>;
   updateValidationSchema?: ZodObject<any>;
-  createOneOptions: CreateOneOptions<Entity>;
+  createOneOptions: CreateOneOptions;
   findOneOptions: FindOneBaseOptions<InstanceType<Entity>> = {};
 
   async getMany(section: AdminSection<Entity>, query: PaginateQuery) {

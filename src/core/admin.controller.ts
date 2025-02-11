@@ -8,12 +8,12 @@ import {
   Post,
   UseFilters,
 } from '@nestjs/common';
-import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { Paginate, type PaginateQuery } from 'nestjs-paginate';
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { GlobalExceptionFilter } from 'src/filters/global.filter';
 import { PermissionAuth } from 'src/decorators/auth.decorator';
 import { ParseSectionPipe } from 'src/pipes/section.pipe';
-import { AdminSection } from './admin.interface';
+import type { AdminSection } from './admin.interface';
 
 @ApiParam({
   name: 'section',

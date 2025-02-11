@@ -1,4 +1,4 @@
-import { PaginateConfig } from 'nestjs-paginate';
+import type { PaginateConfig } from 'nestjs-paginate';
 import { EntityType } from 'src/types';
 import { DataSource, Repository } from 'typeorm';
 import { BaseService } from '../base/base.service';

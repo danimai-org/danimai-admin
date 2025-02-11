@@ -11,6 +11,4 @@ export type FindOneBaseOptions<T> = Partial<
   >
 >;
 
-export type CreateOneOptions<T> = {
-  validateRelations: {};
-};
+export type CreateOneOptions = object;

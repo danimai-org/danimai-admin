@@ -1,3 +1,3 @@
-import { BaseEntity } from './entities';
+import { BaseEntity } from '../entities';
 
 export type EntityType = typeof BaseEntity;
